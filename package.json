@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "watchify src/vehicle.js -o js/index.js & lite-server",
+    "start": "watchify src/index.js -o js/index.js & lite-server",
     "buildjs": "mkdir -p docs/js docs/css && uglifyjs js/*.js -m -o docs/js/index.js && cp index.html docs && cp css/*.css docs/css"
   },
   "author": "",

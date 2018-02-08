@@ -3,9 +3,9 @@
 const config = require('./config');
 const Vehicle = require('./Vehicle');
 
-class WorldView {
-  constructor(model) {
-    this.model = model;
+class World {
+  constructor() {
+    this.vehicles = [];
   }
 
   addCanvas(p5) {
@@ -16,18 +16,24 @@ class WorldView {
 
       for (let i = 0; i < 1; i++) {
         const vehicle = new Vehicle(p5);
-        this.model.addVehicle(vehicle);
+        this.vehicles.push(vehicle);
       }
     };
 
     p5.draw = () => {
       p5.background(config.BACKGROUND_COLOR);
 
-      this.model.step();
-      this.model.draw();
+      // move all vehicles, then draw them
+      // NB: vehicles move in order, not simultaneously
+      this.vehicles.forEach((vehicle) => {
+        vehicle.step();
+      });
+      this.vehicles.forEach((vehicle) => {
+        vehicle.draw();
+      });
     };
 
   }
 }
 
-module.exports = WorldView;
+module.exports = World;
