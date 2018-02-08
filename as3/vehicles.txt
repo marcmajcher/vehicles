@@ -1,0 +1,191 @@
+Vehicle 001 - basic vehicle classes
+Vehicle 002 - adding more vehicles
+Vehicle 003 - wrapping on a toric world
+Vehicle 004 - vehicle trails
+Vehicle 005 - wandering behavior
+Vehicle 006 - follow - converge on a point
+Vehicle 007 - follow - conga line
+Vehicle 008 - follow - random targets
+Vehicle 009 - getting bored
+Vehicle 010 - fleeing - wallflowers
+Vehicle 011 - fleeing - random targets
+Vehicle 012 - fleeing/following/wandering
+Vehicle 013 - follow target/avoid enemy
+Vehicle 014 - weighted following/avoiding
+
+Vehicle 015
+Vehicle 016
+Vehicle 017
+Vehicle 018
+Vehicle 019
+Vehicle 020
+Vehicle 021
+Vehicle 022
+Vehicle 023
+Vehicle 024
+Vehicle 025
+Vehicle 026
+Vehicle 027
+Vehicle 028
+Vehicle 029
+Vehicle 030
+
+Future:
+
+keys to toggle vehicles and trails on and off - screenshots
+add sliders for follow/avoid weights
+aim between target and friend
+move towards open space in front of you
+don't collide
+ - give berth
+boids flocking
+follow waypoints
+perlin noise gradient following
+update vehicle view to use vector.angle
+change topological responsibility to vehicles, not world - what does that change?
+try different topologies - radial? non-euc?
+formalize the state machine
+object pooling - http://lab.polygonal.de/
+
+Vehicle 001 - the basics
+
+We want a vehicle that can move around on the screen. 
+Two parts, the brain (model) and the body (view)
+Separation gets us a few neat things, and here they are
+Also splitting up the world into view and model, we'll see why later, but it's just good practice.
+Main is just the default FlashDevelop template - don't need it all, but it doesn't hurt
+create a new world, add a view, add the view to the stage
+ - the world model updates the world view when it changes
+same with the vehicle - create a vehicle, add it to the world model
+ - the world view takes care of displaying the vehicles through vehicle views. neat, huh?
+start up the world ticker and watch it go
+what's this vector thing? - x and y for velocity for now, makes math easier later
+the vehicle model is just the x,y position, a vector velocity, and a way to update
+ - updating the model sends an update event to the view, which redraws
+ - the vehicle view just draws a V, and rotates to the direction it's headed
+world model is pretty simple, too, just a list of vehicles, which update events when changed,
+ and a ticker to update all the vehicles (which there's just one of now)
+then the world view clears the stage on each tick, and adds all the vehicles in the right place
+ (this is pretty inefficient, so we'll fix that in a bit)
+
+Vehicle 002 - more vehicles
+cleaned up the class structure a little, moved views and models and such into their own namespaces
+adding 50 vehicles now, instead of just the one, made a little smaller
+assigning random positions and velocities to all the vehicles
+and they all zoom off into infinity - that's not interesting.
+a little chunky - why?
+
+Vehicle 003 - toric world
+added wrapping to the world
+- change the vehicles positions if they go off-map
+ - not the vehicles - what do they care what the topology is?, not the view - data, not representation
+ - this way we can mess with the world topology at will, and we don't have to change anything else
+   - we could add topology to vehicles, instead - how would that change things? (viewpoint)
+not dispatching change events from vehicles when we update their x,y - faster, but looser
+
+Vehicle 004 - trails
+added trails to a sprite layer underneath the vehicles
+removed the clear/addchildren behavior from world view, because that's slow as crap
+ - but we still have to do it once, at the beginning in onInit
+instead, keeping a list of vehicles in world, and vehicleviews in worldview
+when the world ticks, it goes through and updates the positions of all the vehicles
+ - that sends an event to the vehicle view to update its position on the world view
+ - when they're all done, send an update event to the world view, which does onUpdate
+all update world view does now is handle the trails
+ - we have a sprite underneath for the drawing
+ - lock the bitmap for performance
+ - for each vehicleview, we calculate the transforms of the view, give it a low alpha, 
+   and copy it to the bitmap
+   - this way we get to build up some nice visuals as the vehicles track
+since it's a little faster, let's add 100 vehicles now instead of 50
+ - i start to get a little chuggy around 300 vehicles, so let's keep it at 100 for a while - that's still interesting
+ 
+Vehicle 005 - wander
+give them a little wiggle
+added a whole bunch of stuff to the vector class (thanks, kp!)
+ - length, angle, add/subtract/multiply/divide, max
+added some steering code to the vehicle update method
+ - just adds a random brownian wiggle to the steering vector
+ - note the turn vector - that just makes them all swarm to one direction - try it!
+also changed the position to a vector - still just x,y, but now we can do some fun math with it, like so.
+see how we have the steering code there? we're gonna do more with that.
+
+Vehicle 006 - converge
+give the vehicle a target - for now, just set it to the center of the screen at 400, 300
+add a steering vector - this gets added to the velocity each update
+also have a maximum speed now, which limits how fast we can go
+pulled the steering stuff out into a steer method, so we can just calculate vectors in there
+ - steering gets added and maxed in the update step
+in steer, we angle towards the target 
+ - figure out the normal (unit) vector to the target from our current position
+ - subtract that from our current velocity to get the vector we need to steer towards to get there
+  - this gets damped down to our max speed in the update step, so we don't need to worry about that here
+look at them all converge on that one point! crazy, huh? let's make it more interesting
+
+Vehicle 007 - conga
+the target for a vehicle is going to be another vehicle now, not just a point
+in the setup in main, we assign each one a target of the previous one 
+ - except the first, which just makes it go normally - what would happen if it wandered?
+so, each vehicle is following the previous vehicle, and as you see, we get a 
+ big conga line of vehicles, all following the first vehicle, which is just wandering around on its own
+ - this can look neat, but it's not super interesting just yet
+ 
+Vehicle 008 - random targets
+now, instead of the previous ones, after we get a list of all the vehicles, we assign a 
+random target to each one (it's possible to get yourself, but that just does nothing)
+they quickly devolve into a bunch of circles, so let's see what happens when only some of
+them follow - some keep going straight, which gives a nice sense of chaos in there.  neat.
+things are actually beginning to be a little interesting now. sorry it took so long.
+
+Vehicle 009 - bored
+look at the vehicle swf, see if you can figure out the behavior
+we're actually back to the conga line, each vehicle following the next, but what's different?
+in the vehicle model, we gave them the ability to get bored of following
+we have a boredom threshhold of 1000, and each vehicle starts with a random amount of boredness
+as they follow, they get more bored randomly, until they reach the threshhold
+when they reach the boredom threshhold, they stop following their target, and start wandering
+when they're wandering, they get less bored, until their boredom reaches zero, at which point
+  they decide to start following again - until they get bored again
+this breaks up the conga line behavior that we saw earlier, letting them zoom around and off at their own leisure
+
+Vehicle 010 - fleeing
+now we're back to the straight conga line, only in reverse
+each one has a target of the next one, only instead of following, it's getting as far away as possible
+just reversing the follow vector, which makes them go in the opposite direction
+as you can see, they tend to clump around the edges
+that's not very interesting
+
+Vehicle 011 - random fleeing
+now we switch again to assigning a random target (that we're fleeing from) from the full vehicle list
+and only assigning about two thirds to flee.
+still clumping around the edge, with a little more motion as the non-fleers move around
+still not super interesting
+
+Vehicle 012 - state machine (kind of)
+ooh, that looks much better!
+sometimes they flee, sometimes they follow, sometimes they wander
+little edge clumping, little conga lining, but more varied behavior
+we re-added the boredom counter, with a twist
+start with the threshhold and random boredom as before
+start by randomly fleeing from or following your target
+(this gets a little tricky)
+do your thing until you get bored
+when you get bored, if you're following, start to flee and reset your bored counter to a random value
+ ; if you get bored of fleeing, just wander
+when your bored score gets back below zero, start following your target
+(you get more bored if you're not wandering, less bored if you're wandering)
+this produces some very interesting patterns, as we've got some fleeing, some following, and some wandering
+all at various times. neat!
+
+Vehicle 013 - friends and enemies
+in main, assign both a target and an "enemy" vehicle
+when steering, move towards your target and away from your vehicle
+add those vectors to see where we go - is this interesting?
+still feels pretty flat - nobody seems to really have an objective here
+
+Vehicle 014 - weighted objectives
+steer towards your target eight times more than away from your enemy
+this is very interesting!
+almost like flocking behavior, clumping up, and then bursting away
+neat! let's play with this some more, different values
+
