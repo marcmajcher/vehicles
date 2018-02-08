@@ -8,7 +8,7 @@ class Vehicle {
     this.p = p;
     this.x = config.WINDOW_WIDTH / 2;
     this.y = config.WINDOW_HEIGHT / 2;
-    this.t = 0;
+    this.t = Math.random() * 10000;
     this.dt = 0.01;
   }
 
@@ -19,7 +19,7 @@ class Vehicle {
     this.t += this.dt;
   }
 
-  display() {
+  draw() {
     this.p.stroke(config.VEHICLE_COLOR);
     this.p.point(this.x, this.y);
   }
@@ -27,15 +27,32 @@ class Vehicle {
 
 module.exports = Vehicle;
 
-},{"./config":2}],2:[function(require,module,exports){
+},{"./config":4}],2:[function(require,module,exports){
 'use strict';
 
-module.exports = {
-  WINDOW_WIDTH: 640,
-  WINDOW_HEIGHT: 480,
-  BACKGROUND_COLOR: '#fff',
-  VEHICLE_COLOR: '#000',
-};
+class WorldModel {
+  constructor() {
+    this.vehicles = [];
+  }
+
+  addVehicle(vehicle) {
+    this.vehicles.push(vehicle);
+  }
+
+  step() {
+    this.vehicles.forEach((v) => {
+      v.step();
+    });
+  }
+
+  draw() {
+    this.vehicles.forEach((v) => {
+      v.draw();
+    });
+  }
+}
+
+module.exports = WorldModel;
 
 },{}],3:[function(require,module,exports){
 'use strict';
@@ -43,32 +60,68 @@ module.exports = {
 const config = require('./config');
 const Vehicle = require('./Vehicle');
 
+class WorldView {
+  constructor(model) {
+    this.model = model;
+  }
+
+  addCanvas(p5) {
+    this.p5 = p5;
+
+    p5.setup = () => {
+      p5.createCanvas(config.WINDOW_WIDTH, config.WINDOW_HEIGHT);
+      p5.background(config.BACKGROUND_COLOR);
+
+      for (let i = 0; i < 1000; i++) {
+        const vehicle = new Vehicle(p5);
+        this.model.addVehicle(vehicle);
+      }
+    };
+
+    p5.draw = () => {
+      this.model.step();
+      this.model.draw();
+    };
+
+  }
+}
+
+module.exports = WorldView;
+
+},{"./Vehicle":1,"./config":4}],4:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+  WINDOW_WIDTH: 640,
+  WINDOW_HEIGHT: 480,
+  BACKGROUND_COLOR: '#fff',
+  VEHICLE_COLOR: 'rgba(0,0,0,0.05)',
+  // VEHICLE_COLOR: '#000',
+};
+
+},{}],5:[function(require,module,exports){
+'use strict';
+
+module.exports = [
+  require('./vehicles000'),
+  // new require('./vehicles001')()
+];
+
+},{"./vehicles000":6}],6:[function(require,module,exports){
+'use strict';
+
+const WorldModel = require('./WorldModel');
+const WorldView = require('./WorldView');
+
 const sketch = function (p) {
-
-  const vehicle = new Vehicle(p);
-
-  p.setup = () => {
-    p.createCanvas(config.WINDOW_WIDTH, config.WINDOW_HEIGHT);
-    p.background(config.BACKGROUND_COLOR);
-  };
-
-  p.draw = () => {
-    vehicle.step();
-    vehicle.display();
-  };
-
+  const world = new WorldModel();
+  const worldView = new WorldView(world);
+  worldView.addCanvas(p);
 };
 
 module.exports = sketch;
 
-},{"./Vehicle":1,"./config":2}],4:[function(require,module,exports){
-'use strict';
-
-module.exports = [
-  require('./vehicle000')
-];
-
-},{"./vehicle000":3}],5:[function(require,module,exports){
+},{"./WorldModel":2,"./WorldView":3}],7:[function(require,module,exports){
 'use strict';
 
 /* global p5 */
@@ -76,7 +129,8 @@ module.exports = [
 const vehicles = require('./lib/vehicles');
 
 const fn = () => {
-  new p5(vehicles[0], 'vehicle000');
+  new p5(vehicles[0], 'vehicles000');
+  // new p5(vehicles[1], 'vehicles001');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
@@ -86,4 +140,4 @@ else {
   document.addEventListener('DOMContentLoaded', fn);
 }
 
-},{"./lib/vehicles":4}]},{},[5]);
+},{"./lib/vehicles":5}]},{},[7]);

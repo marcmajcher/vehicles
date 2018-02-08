@@ -7,7 +7,7 @@ class Vehicle {
     this.p = p;
     this.x = config.WINDOW_WIDTH / 2;
     this.y = config.WINDOW_HEIGHT / 2;
-    this.t = 0;
+    this.t = Math.random() * 10000;
     this.dt = 0.01;
   }
 
@@ -18,7 +18,7 @@ class Vehicle {
     this.t += this.dt;
   }
 
-  display() {
+  draw() {
     this.p.stroke(config.VEHICLE_COLOR);
     this.p.point(this.x, this.y);
   }

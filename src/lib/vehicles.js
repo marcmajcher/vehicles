@@ -1,5 +1,6 @@
 'use strict';
 
 module.exports = [
-  require('./vehicle000')
+  require('./vehicles000'),
+  // new require('./vehicles001')()
 ];
