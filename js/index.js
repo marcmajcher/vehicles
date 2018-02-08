@@ -1,13 +1,11 @@
+(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 'use strict';
 
-/* global p5 */
-
+const VEHICLE_COLOR = '#000';
 const WINDOW_WIDTH = 640;
 const WINDOW_HEIGHT = 480;
-const BACKGROUND_COLOR = '#fff';
-const VEHICLE_COLOR = '#000';
 
-class Walker {
+class Vehicle {
   constructor(p) {
     this.p = p;
     this.x = WINDOW_WIDTH / 2;
@@ -29,9 +27,20 @@ class Walker {
   }
 }
 
+module.exports = Vehicle;
+
+},{}],2:[function(require,module,exports){
+'use strict';
+
+const WINDOW_WIDTH = 640;
+const WINDOW_HEIGHT = 480;
+const BACKGROUND_COLOR = '#fff';
+
+const Vehicle = require('./Vehicle');
+
 const sketch = function (p) {
 
-  const walker = new Walker(p);
+  const vehicle = new Vehicle(p);
 
   p.setup = () => {
     p.createCanvas(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -39,10 +48,30 @@ const sketch = function (p) {
   };
 
   p.draw = () => {
-    walker.step();
-    walker.display();
+    vehicle.step();
+    vehicle.display();
   };
 
 };
 
-new p5(sketch);
+module.exports = sketch;
+
+},{"./Vehicle":1}],3:[function(require,module,exports){
+'use strict';
+
+/* global p5 */
+
+const sketch = require('./lib/sketch');
+
+const fn = () => {
+  new p5(sketch, 'firstSketch');
+};
+
+if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+  fn();
+}
+else {
+  document.addEventListener('DOMContentLoaded', fn);
+}
+
+},{"./lib/sketch":2}]},{},[3]);
