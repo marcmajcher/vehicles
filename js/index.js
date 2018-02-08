@@ -17,39 +17,94 @@ else {
   document.addEventListener('DOMContentLoaded', fn);
 }
 
-},{"./lib/vehicles":5}],2:[function(require,module,exports){
+},{"./lib/vehicles":6}],2:[function(require,module,exports){
+'use strict';
+
+class Vector {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  add(vec) {
+    this.x += vec.x;
+    this.y += vec.y;
+  }
+
+  // returns the x, y given, rotate by the vector
+  rotate(xin, yin) {
+    const radians = Math.atan2(this.y, this.x);
+    const x = xin * Math.cos(radians) - yin * Math.sin(radians);
+    const y = xin * Math.sin(radians) + yin * Math.cos(radians);
+    return {
+      x,
+      y
+    };
+  }
+}
+
+module.exports = Vector;
+
+},{}],3:[function(require,module,exports){
 'use strict';
 
 const config = require('./config');
+const Vector = require('./Vector');
 
 class Vehicle {
   constructor(p) {
     this.p = p;
-    this.x = 10;
-    this.y = config.WINDOW_HEIGHT / 2;
+    this.position = new Vector(10, config.WINDOW_HEIGHT / 2);
+    this.velocity = new Vector(1, 0);
+
     this.thickness = 2;
     this.size = 10;
   }
 
   step() {
-    this.x += 1;
+    this.position.add(this.velocity);
+    this.wrap();
+  }
+
+  wrap() {
+    // check edges and wrap
+    const width = this.p.width + this.size;
+    const height = this.p.height + this.size;
+
+    if (this.position.x < 0) {
+      this.position.x = width;
+    }
+    else if (this.position.x > width) {
+      this.position.x = 0;
+    }
+    if (this.position.y < 0) {
+      this.position.y = height;
+    }
+    else if (this.position.y > height) {
+      this.position.y = 0;
+    }
   }
 
   draw() {
-    this.p.stroke(config.VEHICLE_COLOR);
-    this.p.strokeWeight(this.thickness);
+    const p = this.p;
+    p.stroke(config.VEHICLE_COLOR);
+    p.strokeWeight(this.thickness);
 
-    this.p.beginShape();
-    this.p.vertex(this.x - this.size, this.y - this.size);
-    this.p.vertex(this.x, this.y);
-    this.p.vertex(this.x - this.size, this.y + this.size);
-    this.p.endShape();
+    const tail1 = this.velocity.rotate(this.position.x - this.size, this.position.y - this.size);
+    const tail2 = this.velocity.rotate(this.position.x - this.size, this.position.y + this.size);
+
+    p.beginShape();
+    p.vertex(tail1.x, tail1.y);
+    p.vertex(this.position.x, this.position.y);
+    p.vertex(tail2.x, tail2.y);
+    p.endShape();
   }
+
 }
 
 module.exports = Vehicle;
 
-},{"./config":4}],3:[function(require,module,exports){
+},{"./Vector":2,"./config":5}],4:[function(require,module,exports){
 'use strict';
 
 const config = require('./config');
@@ -75,6 +130,8 @@ class World {
     p5.draw = () => {
       p5.background(config.BACKGROUND_COLOR);
 
+      // move all vehicles, then draw them
+      // NB: vehicles move in order, not simultaneously
       this.vehicles.forEach((vehicle) => {
         vehicle.step();
       });
@@ -88,7 +145,7 @@ class World {
 
 module.exports = World;
 
-},{"./Vehicle":2,"./config":4}],4:[function(require,module,exports){
+},{"./Vehicle":3,"./config":5}],5:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -98,7 +155,7 @@ module.exports = {
   VEHICLE_COLOR: 'rgba(0,0,0,1)',
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = [
@@ -106,7 +163,7 @@ module.exports = [
   // new require('./vehicles001')()
 ];
 
-},{"./vehicles000":6}],6:[function(require,module,exports){
+},{"./vehicles000":7}],7:[function(require,module,exports){
 'use strict';
 
 const World = require('./World');
@@ -118,4 +175,4 @@ const sketch = function (p) {
 
 module.exports = sketch;
 
-},{"./World":3}]},{},[1]);
+},{"./World":4}]},{},[1]);
