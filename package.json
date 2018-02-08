@@ -5,8 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "watchify src/vehicle.js -o js/index.js & lite-server"
+    "start": "watchify src/vehicle.js -o js/index.js & lite-server",
+    "buildjs": "mkdir -p docs/js && uglifyjs js/*.js -m -o docs/js/index.js && cp index.html docs"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "uglify-es": "^3.3.10",
+    "uglify-js": "^3.3.10",
+    "watchify": "^3.10.0"
+  }
 }
