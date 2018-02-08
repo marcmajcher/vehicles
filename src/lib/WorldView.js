@@ -13,15 +13,16 @@ class WorldView {
 
     p5.setup = () => {
       p5.createCanvas(config.WINDOW_WIDTH, config.WINDOW_HEIGHT);
-      p5.background(config.BACKGROUND_COLOR);
 
-      for (let i = 0; i < 1000; i++) {
+      for (let i = 0; i < 1; i++) {
         const vehicle = new Vehicle(p5);
         this.model.addVehicle(vehicle);
       }
     };
 
     p5.draw = () => {
+      p5.background(config.BACKGROUND_COLOR);
+
       this.model.step();
       this.model.draw();
     };
