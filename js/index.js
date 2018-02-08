@@ -1,15 +1,13 @@
 (function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 'use strict';
 
-const VEHICLE_COLOR = '#000';
-const WINDOW_WIDTH = 640;
-const WINDOW_HEIGHT = 480;
+const config = require('./config');
 
 class Vehicle {
   constructor(p) {
     this.p = p;
-    this.x = WINDOW_WIDTH / 2;
-    this.y = WINDOW_HEIGHT / 2;
+    this.x = config.WINDOW_WIDTH / 2;
+    this.y = config.WINDOW_HEIGHT / 2;
     this.t = 0;
     this.dt = 0.01;
   }
@@ -22,20 +20,27 @@ class Vehicle {
   }
 
   display() {
-    this.p.stroke(VEHICLE_COLOR);
+    this.p.stroke(config.VEHICLE_COLOR);
     this.p.point(this.x, this.y);
   }
 }
 
 module.exports = Vehicle;
 
-},{}],2:[function(require,module,exports){
+},{"./config":2}],2:[function(require,module,exports){
 'use strict';
 
-const WINDOW_WIDTH = 640;
-const WINDOW_HEIGHT = 480;
-const BACKGROUND_COLOR = '#fff';
+module.exports = {
+  WINDOW_WIDTH: 640,
+  WINDOW_HEIGHT: 480,
+  BACKGROUND_COLOR: '#fff',
+  VEHICLE_COLOR: '#000',
+};
 
+},{}],3:[function(require,module,exports){
+'use strict';
+
+const config = require('./config');
 const Vehicle = require('./Vehicle');
 
 const sketch = function (p) {
@@ -43,8 +48,8 @@ const sketch = function (p) {
   const vehicle = new Vehicle(p);
 
   p.setup = () => {
-    p.createCanvas(WINDOW_WIDTH, WINDOW_HEIGHT);
-    p.background(BACKGROUND_COLOR);
+    p.createCanvas(config.WINDOW_WIDTH, config.WINDOW_HEIGHT);
+    p.background(config.BACKGROUND_COLOR);
   };
 
   p.draw = () => {
@@ -56,15 +61,22 @@ const sketch = function (p) {
 
 module.exports = sketch;
 
-},{"./Vehicle":1}],3:[function(require,module,exports){
+},{"./Vehicle":1,"./config":2}],4:[function(require,module,exports){
+'use strict';
+
+module.exports = [
+  require('./vehicle000')
+];
+
+},{"./vehicle000":3}],5:[function(require,module,exports){
 'use strict';
 
 /* global p5 */
 
-const sketch = require('./lib/sketch');
+const vehicles = require('./lib/vehicles');
 
 const fn = () => {
-  new p5(sketch, 'firstSketch');
+  new p5(vehicles[0], 'vehicle000');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
@@ -74,4 +86,4 @@ else {
   document.addEventListener('DOMContentLoaded', fn);
 }
 
-},{"./lib/sketch":2}]},{},[3]);
+},{"./lib/vehicles":4}]},{},[5]);

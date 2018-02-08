@@ -1,14 +1,12 @@
 'use strict';
 
-const VEHICLE_COLOR = '#000';
-const WINDOW_WIDTH = 640;
-const WINDOW_HEIGHT = 480;
+const config = require('./config');
 
 class Vehicle {
   constructor(p) {
     this.p = p;
-    this.x = WINDOW_WIDTH / 2;
-    this.y = WINDOW_HEIGHT / 2;
+    this.x = config.WINDOW_WIDTH / 2;
+    this.y = config.WINDOW_HEIGHT / 2;
     this.t = 0;
     this.dt = 0.01;
   }
@@ -21,7 +19,7 @@ class Vehicle {
   }
 
   display() {
-    this.p.stroke(VEHICLE_COLOR);
+    this.p.stroke(config.VEHICLE_COLOR);
     this.p.point(this.x, this.y);
   }
 }

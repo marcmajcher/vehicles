@@ -2,10 +2,10 @@
 
 /* global p5 */
 
-const sketch = require('./lib/sketch');
+const vehicles = require('./lib/vehicles');
 
 const fn = () => {
-  new p5(sketch, 'firstSketch');
+  new p5(vehicles[0], 'vehicle000');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
