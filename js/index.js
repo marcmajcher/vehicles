@@ -158,9 +158,7 @@ class World {
           vehicle.step();
         });
         this.vehicles.forEach((vehicle) => {
-          if (this.trails) {
-            vehicle.drawTrail(this.trailBuffer);
-          }
+          vehicle.drawTrail(this.trailBuffer);
           if (this.showVehicles) {
             vehicle.draw();
           }
@@ -172,6 +170,10 @@ class World {
       if (p5.keyCode === 32) { // space
         this.showVehicles = !this.showVehicles;
       }
+      else if (p5.keyCode === 84) {
+        this.trails = !this.trails;
+      }
+      // console.log(p5.keyCode);
     };
   }
 }
