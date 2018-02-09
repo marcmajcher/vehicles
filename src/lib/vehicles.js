@@ -2,5 +2,5 @@
 
 module.exports = [
   require('./vehicles000'),
-  // new require('./vehicles001')()
+  require('./vehicles001'),
 ];

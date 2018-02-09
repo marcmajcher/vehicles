@@ -6,8 +6,8 @@
 const vehicles = require('./lib/vehicles');
 
 const fn = () => {
-  new p5(vehicles[0], 'vehicles000');
-  // new p5(vehicles[1], 'vehicles001');
+  // new p5(vehicles[0], 'vehicles000');
+  new p5(vehicles[1], 'vehicles001');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
@@ -34,7 +34,6 @@ class Vector {
   // returns the x, y given, rotate by the vector
   rotate(xin, yin) {
     const radians = Math.atan2(this.y, this.x);
-    console.log('RAD', radians, 'SIN', Math.sin(radians), "COS", Math.cos(radians));
     const x = xin * Math.cos(radians) - yin * Math.sin(radians);
     const y = xin * Math.sin(radians) + yin * Math.cos(radians);
     return {
@@ -56,7 +55,7 @@ class Vehicle {
   constructor(p) {
     this.p = p;
     this.position = new Vector(10, config.WINDOW_HEIGHT / 2);
-    this.velocity = new Vector(1, 1);
+    this.velocity = new Vector(0, 0);
 
     this.thickness = 2;
     this.size = 10;
@@ -94,6 +93,7 @@ class Vehicle {
     const tail1 = this.velocity.rotate(-this.size, -this.size);
     const tail2 = this.velocity.rotate(-this.size, this.size);
 
+    p.noFill();
     p.beginShape();
     p.vertex(this.position.x + tail1.x, this.position.y + tail1.y);
     p.vertex(this.position.x, this.position.y);
@@ -109,11 +109,23 @@ module.exports = Vehicle;
 'use strict';
 
 const config = require('./config');
-const Vehicle = require('./Vehicle');
 
 class World {
   constructor() {
     this.vehicles = [];
+    this.running = false;
+  }
+
+  start() {
+    this.running = true;
+  }
+
+  stop() {
+    this.running = false;
+  }
+
+  addVehicle(vehicle) {
+    this.vehicles.push(vehicle);
   }
 
   addCanvas(p5) {
@@ -121,24 +133,21 @@ class World {
 
     p5.setup = () => {
       p5.createCanvas(config.WINDOW_WIDTH, config.WINDOW_HEIGHT);
-
-      for (let i = 0; i < 1; i++) {
-        const vehicle = new Vehicle(p5);
-        this.vehicles.push(vehicle);
-      }
     };
 
     p5.draw = () => {
-      p5.background(config.BACKGROUND_COLOR);
+      if (this.running) {
+        p5.background(config.BACKGROUND_COLOR);
 
-      // move all vehicles, then draw them
-      // NB: vehicles move in order, not simultaneously
-      this.vehicles.forEach((vehicle) => {
-        vehicle.step();
-      });
-      this.vehicles.forEach((vehicle) => {
-        vehicle.draw();
-      });
+        // move all vehicles, then draw them
+        // NB: vehicles move in order, not simultaneously
+        this.vehicles.forEach((vehicle) => {
+          vehicle.step();
+        });
+        this.vehicles.forEach((vehicle) => {
+          vehicle.draw();
+        });
+      }
     };
 
   }
@@ -146,7 +155,7 @@ class World {
 
 module.exports = World;
 
-},{"./Vehicle":3,"./config":5}],5:[function(require,module,exports){
+},{"./config":5}],5:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -161,19 +170,55 @@ module.exports = {
 
 module.exports = [
   require('./vehicles000'),
-  // new require('./vehicles001')()
+  require('./vehicles001'),
 ];
 
-},{"./vehicles000":7}],7:[function(require,module,exports){
+},{"./vehicles000":7,"./vehicles001":8}],7:[function(require,module,exports){
 'use strict';
 
 const World = require('./World');
+const Vehicle = require('./Vehicle');
+const Vector = require('./Vector');
 
-const sketch = function (p) {
+const sketch = function (p5) {
   const world = new World();
-  world.addCanvas(p);
+  world.addCanvas(p5);
+
+  const vehicle = new Vehicle(p5);
+  vehicle.velocity = new Vector(1, 0);
+
+  world.addVehicle(vehicle);
+
+  world.start();
 };
 
 module.exports = sketch;
 
-},{"./World":4}]},{},[1]);
+},{"./Vector":2,"./Vehicle":3,"./World":4}],8:[function(require,module,exports){
+'use strict';
+
+const config = require('./config');
+const World = require('./World');
+const Vehicle = require('./Vehicle');
+const Vector = require('./Vector');
+
+const numVehicles = 100;
+
+const sketch = function (p5) {
+  const world = new World();
+  world.addCanvas(p5);
+
+  for (let i = 0; i < numVehicles; i++) {
+    const vehicle = new Vehicle(p5);
+    const r = Math.random;
+    vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
+    vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
+    world.addVehicle(vehicle);
+  }
+
+  world.start();
+};
+
+module.exports = sketch;
+
+},{"./Vector":2,"./Vehicle":3,"./World":4,"./config":5}]},{},[1]);

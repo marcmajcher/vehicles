@@ -7,7 +7,7 @@ class Vehicle {
   constructor(p) {
     this.p = p;
     this.position = new Vector(10, config.WINDOW_HEIGHT / 2);
-    this.velocity = new Vector(1, 1);
+    this.velocity = new Vector(0, 0);
 
     this.thickness = 2;
     this.size = 10;
@@ -45,6 +45,7 @@ class Vehicle {
     const tail1 = this.velocity.rotate(-this.size, -this.size);
     const tail2 = this.velocity.rotate(-this.size, this.size);
 
+    p.noFill();
     p.beginShape();
     p.vertex(this.position.x + tail1.x, this.position.y + tail1.y);
     p.vertex(this.position.x, this.position.y);

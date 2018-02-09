@@ -1,22 +1,25 @@
 'use strict';
 
 const config = require('./config');
+const World = require('./World');
 const Vehicle = require('./Vehicle');
+const Vector = require('./Vector');
 
-const sketch = function (p) {
+const numVehicles = 100;
 
-  const vehicle = new Vehicle(p);
+const sketch = function (p5) {
+  const world = new World();
+  world.addCanvas(p5);
 
-  p.setup = () => {
-    p.createCanvas(config.WINDOW_WIDTH, config.WINDOW_HEIGHT);
-    p.background(config.BACKGROUND_COLOR);
-  };
+  for (let i = 0; i < numVehicles; i++) {
+    const vehicle = new Vehicle(p5);
+    const r = Math.random;
+    vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
+    vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
+    world.addVehicle(vehicle);
+  }
 
-  p.draw = () => {
-    vehicle.step();
-    vehicle.display();
-  };
-
+  world.start();
 };
 
 module.exports = sketch;

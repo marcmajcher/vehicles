@@ -15,10 +15,8 @@ To start, we're just going to get set up and put something on the screen that mo
 >     p5.setup = () => {
 >       p5.createCanvas(config.WINDOW_WIDTH, config.WINDOW_HEIGHT);
 >
->       for (let i = 0; i < 1; i++) {
->         const vehicle = new Vehicle(p5);
->         this.vehicles.push(vehicle);
->       }
+>       const vehicle = new Vehicle(p5);
+>       this.vehicles.push(vehicle);
 >     };
 >
 >     p5.draw = () => {
