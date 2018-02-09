@@ -34,6 +34,7 @@ class Vector {
   // returns the x, y given, rotate by the vector
   rotate(xin, yin) {
     const radians = Math.atan2(this.y, this.x);
+    console.log('RAD', radians, 'SIN', Math.sin(radians), "COS", Math.cos(radians));
     const x = xin * Math.cos(radians) - yin * Math.sin(radians);
     const y = xin * Math.sin(radians) + yin * Math.cos(radians);
     return {
@@ -55,7 +56,7 @@ class Vehicle {
   constructor(p) {
     this.p = p;
     this.position = new Vector(10, config.WINDOW_HEIGHT / 2);
-    this.velocity = new Vector(1, 0);
+    this.velocity = new Vector(1, 1);
 
     this.thickness = 2;
     this.size = 10;
@@ -90,13 +91,13 @@ class Vehicle {
     p.stroke(config.VEHICLE_COLOR);
     p.strokeWeight(this.thickness);
 
-    const tail1 = this.velocity.rotate(this.position.x - this.size, this.position.y - this.size);
-    const tail2 = this.velocity.rotate(this.position.x - this.size, this.position.y + this.size);
+    const tail1 = this.velocity.rotate(-this.size, -this.size);
+    const tail2 = this.velocity.rotate(-this.size, this.size);
 
     p.beginShape();
-    p.vertex(tail1.x, tail1.y);
+    p.vertex(this.position.x + tail1.x, this.position.y + tail1.y);
     p.vertex(this.position.x, this.position.y);
-    p.vertex(tail2.x, tail2.y);
+    p.vertex(this.position.x + tail2.x, this.position.y + tail2.y);
     p.endShape();
   }
 

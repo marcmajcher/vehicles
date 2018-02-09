@@ -22,13 +22,13 @@ And just add the velocity to the current position each step to move it:
 
 And now! We just need to draw the vehicle pointing in the right direction in the vehicle's draw() method:
 
-> const tail1 = this.velocity.rotate(this.position.x - this.size, this.position.y - this.size);
-> const tail2 = this.velocity.rotate(this.position.x - this.size, this.position.y + this.size);
+> const tail1 = this.velocity.rotate(-this.size, -this.size);
+> const tail2 = this.velocity.rotate(-this.size, this.size);
 >
 > p.beginShape();
-> p.vertex(tail1.x, tail1.y);
+> p.vertex(this.position.x + tail1.x, this.position.y + tail1.y);
 > p.vertex(this.position.x, this.position.y);
-> p.vertex(tail2.x, tail2.y);
+> p.vertex(this.position.x + tail2.x, this.position.y + tail2.y);
 > p.endShape();
 
 And that'll do it! Or not... We'll also have to add the addition and rotation methods to our Vector class:
