@@ -9,7 +9,8 @@ const fn = () => {
   // new p5(vehicles[0], 'vehicles000');
   // new p5(vehicles[1], 'vehicles001');
   // new p5(vehicles[2], 'vehicles002');
-  new p5(vehicles[3], 'vehicles003');
+  // new p5(vehicles[3], 'vehicles003');
+  new p5(vehicles[4], 'vehicles004');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
@@ -288,9 +289,10 @@ module.exports = [
   require('./vehicles001'),
   require('./vehicles002'),
   require('./vehicles003'),
+  require('./vehicles004'),
 ];
 
-},{"./vehicles000":7,"./vehicles001":8,"./vehicles002":9,"./vehicles003":10}],7:[function(require,module,exports){
+},{"./vehicles000":7,"./vehicles001":8,"./vehicles002":9,"./vehicles003":10,"./vehicles004":11}],7:[function(require,module,exports){
 'use strict';
 
 const World = require('./World');
@@ -401,6 +403,45 @@ const sketch = function (p5) {
       vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
       vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
       vehicle.steer = steering;
+      this.addVehicle(vehicle);
+    }
+  };
+
+  const world = new World();
+  world.addCanvas(p5);
+  world.init = init;
+  world.start();
+};
+
+module.exports = sketch;
+
+},{"./Vector":2,"./Vehicle":3,"./World":4,"./config":5}],11:[function(require,module,exports){
+'use strict';
+
+const config = require('./config');
+const World = require('./World');
+const Vehicle = require('./Vehicle');
+const Vector = require('./Vector');
+
+const sketch = function (p5) {
+
+  const steering = function () {
+    let degrees = 0;
+    let accel = 0;
+    this.velocity.angle = this.velocity.angle + degrees / 20;
+    this.velocity.length = this.velocity.length + accel / 30;
+  };
+
+  const init = function () {
+    const target = new Vector(config.WINDOW_WIDTH / 2, config.WINDOW_HEIGHT / 2);
+
+    for (let i = 0; i < this.numVehicles; i++) {
+      const vehicle = new Vehicle(p5);
+      const r = Math.random;
+      vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
+      vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
+      vehicle.steer = steering;
+      vehicle.brain.target = target;
       this.addVehicle(vehicle);
     }
   };
