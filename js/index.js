@@ -100,14 +100,12 @@ class Vehicle {
     p.vertex(this.position.x, this.position.y);
     p.vertex(this.position.x + tail2.x, this.position.y + tail2.y);
     p.endShape();
-    console.log('draw', this.position);
   }
 
   drawTrail(buffer) {
     buffer.noStroke();
     buffer.fill(config.TRAILS_COLOR);
-    buffer.ellipse(this.position.x / 2, this.position.y / 2, this.size * .7);
-    console.log('trail', this.position);
+    buffer.ellipse(this.position.x / 2, this.position.y / 2, this.size * 0.7);
   }
 
 }
@@ -122,6 +120,7 @@ const config = require('./config');
 class World {
   constructor() {
     this.running = false;
+    this.showVehicles = true;
     this.trails = false;
     this.vehicles = [];
   }
@@ -162,8 +161,16 @@ class World {
           if (this.trails) {
             vehicle.drawTrail(this.trailBuffer);
           }
-          vehicle.draw();
+          if (this.showVehicles) {
+            vehicle.draw();
+          }
         });
+      }
+    };
+
+    p5.keyPressed = () => {
+      if (p5.keyCode === 32) { // space
+        this.showVehicles = !this.showVehicles;
       }
     };
   }

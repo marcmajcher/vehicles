@@ -51,14 +51,12 @@ class Vehicle {
     p.vertex(this.position.x, this.position.y);
     p.vertex(this.position.x + tail2.x, this.position.y + tail2.y);
     p.endShape();
-    console.log('draw', this.position);
   }
 
   drawTrail(buffer) {
     buffer.noStroke();
     buffer.fill(config.TRAILS_COLOR);
-    buffer.ellipse(this.position.x / 2, this.position.y / 2, this.size * .7);
-    console.log('trail', this.position);
+    buffer.ellipse(this.position.x / 2, this.position.y / 2, this.size * 0.7);
   }
 
 }

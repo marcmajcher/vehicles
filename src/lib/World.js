@@ -5,6 +5,7 @@ const config = require('./config');
 class World {
   constructor() {
     this.running = false;
+    this.showVehicles = true;
     this.trails = false;
     this.vehicles = [];
   }
@@ -45,8 +46,16 @@ class World {
           if (this.trails) {
             vehicle.drawTrail(this.trailBuffer);
           }
-          vehicle.draw();
+          if (this.showVehicles) {
+            vehicle.draw();
+          }
         });
+      }
+    };
+
+    p5.keyPressed = () => {
+      if (p5.keyCode === 32) { // space
+        this.showVehicles = !this.showVehicles;
       }
     };
   }
