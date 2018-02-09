@@ -7,7 +7,8 @@ const vehicles = require('./lib/vehicles');
 
 const fn = () => {
   // new p5(vehicles[0], 'vehicles000');
-  new p5(vehicles[1], 'vehicles001');
+  // new p5(vehicles[1], 'vehicles001');
+  new p5(vehicles[2], 'vehicles002');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
@@ -57,8 +58,8 @@ class Vehicle {
     this.position = new Vector(10, config.WINDOW_HEIGHT / 2);
     this.velocity = new Vector(0, 0);
 
-    this.thickness = 2;
-    this.size = 10;
+    this.thickness = config.VEHICLE_THICKNESS;
+    this.size = config.VEHICLE_SIZE;
   }
 
   step() {
@@ -99,6 +100,14 @@ class Vehicle {
     p.vertex(this.position.x, this.position.y);
     p.vertex(this.position.x + tail2.x, this.position.y + tail2.y);
     p.endShape();
+    console.log('draw', this.position);
+  }
+
+  drawTrail(buffer) {
+    buffer.noStroke();
+    buffer.fill(config.TRAILS_COLOR);
+    buffer.ellipse(this.position.x / 2, this.position.y / 2, this.size * .7);
+    console.log('trail', this.position);
   }
 
 }
@@ -112,8 +121,9 @@ const config = require('./config');
 
 class World {
   constructor() {
-    this.vehicles = [];
     this.running = false;
+    this.trails = false;
+    this.vehicles = [];
   }
 
   start() {
@@ -133,11 +143,15 @@ class World {
 
     p5.setup = () => {
       p5.createCanvas(config.WINDOW_WIDTH, config.WINDOW_HEIGHT);
+      this.trailBuffer = p5.createGraphics(p5.width, p5.height);
     };
 
     p5.draw = () => {
       if (this.running) {
         p5.background(config.BACKGROUND_COLOR);
+        if (this.trails) {
+          p5.image(this.trailBuffer, 0, 0, p5.width, p5.height);
+        }
 
         // move all vehicles, then draw them
         // NB: vehicles move in order, not simultaneously
@@ -145,11 +159,13 @@ class World {
           vehicle.step();
         });
         this.vehicles.forEach((vehicle) => {
+          if (this.trails) {
+            vehicle.drawTrail(this.trailBuffer);
+          }
           vehicle.draw();
         });
       }
     };
-
   }
 }
 
@@ -163,6 +179,9 @@ module.exports = {
   WINDOW_HEIGHT: 480,
   BACKGROUND_COLOR: '#fff',
   VEHICLE_COLOR: 'rgba(0,0,0,1)',
+  TRAILS_COLOR: 'rgba(0,0,0,0.002)',
+  VEHICLE_THICKNESS: 2,
+  VEHICLE_SIZE: 6
 };
 
 },{}],6:[function(require,module,exports){
@@ -171,9 +190,10 @@ module.exports = {
 module.exports = [
   require('./vehicles000'),
   require('./vehicles001'),
+  require('./vehicles002'),
 ];
 
-},{"./vehicles000":7,"./vehicles001":8}],7:[function(require,module,exports){
+},{"./vehicles000":7,"./vehicles001":8,"./vehicles002":9}],7:[function(require,module,exports){
 'use strict';
 
 const World = require('./World');
@@ -207,6 +227,34 @@ const numVehicles = 100;
 const sketch = function (p5) {
   const world = new World();
   world.addCanvas(p5);
+
+  for (let i = 0; i < numVehicles; i++) {
+    const vehicle = new Vehicle(p5);
+    const r = Math.random;
+    vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
+    vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
+    world.addVehicle(vehicle);
+  }
+
+  world.start();
+};
+
+module.exports = sketch;
+
+},{"./Vector":2,"./Vehicle":3,"./World":4,"./config":5}],9:[function(require,module,exports){
+'use strict';
+
+const config = require('./config');
+const World = require('./World');
+const Vehicle = require('./Vehicle');
+const Vector = require('./Vector');
+
+const numVehicles = 100;
+
+const sketch = function (p5) {
+  const world = new World();
+  world.addCanvas(p5);
+  world.trails = true;
 
   for (let i = 0; i < numVehicles; i++) {
     const vehicle = new Vehicle(p5);

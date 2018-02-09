@@ -9,8 +9,8 @@ class Vehicle {
     this.position = new Vector(10, config.WINDOW_HEIGHT / 2);
     this.velocity = new Vector(0, 0);
 
-    this.thickness = 2;
-    this.size = 10;
+    this.thickness = config.VEHICLE_THICKNESS;
+    this.size = config.VEHICLE_SIZE;
   }
 
   step() {
@@ -51,6 +51,14 @@ class Vehicle {
     p.vertex(this.position.x, this.position.y);
     p.vertex(this.position.x + tail2.x, this.position.y + tail2.y);
     p.endShape();
+    console.log('draw', this.position);
+  }
+
+  drawTrail(buffer) {
+    buffer.noStroke();
+    buffer.fill(config.TRAILS_COLOR);
+    buffer.ellipse(this.position.x / 2, this.position.y / 2, this.size * .7);
+    console.log('trail', this.position);
   }
 
 }

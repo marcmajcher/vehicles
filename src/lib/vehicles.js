@@ -3,4 +3,5 @@
 module.exports = [
   require('./vehicles000'),
   require('./vehicles001'),
+  require('./vehicles002'),
 ];
