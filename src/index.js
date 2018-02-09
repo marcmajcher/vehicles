@@ -7,7 +7,8 @@ const vehicles = require('./lib/vehicles');
 const fn = () => {
   // new p5(vehicles[0], 'vehicles000');
   // new p5(vehicles[1], 'vehicles001');
-  new p5(vehicles[2], 'vehicles002');
+  // new p5(vehicles[2], 'vehicles002');
+  new p5(vehicles[3], 'vehicles003');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {

@@ -53,12 +53,15 @@ class World {
 
     p5.keyPressed = () => {
       if (p5.keyCode === 32) { // space
-        this.showVehicles = !this.showVehicles;
+        this.running = !this.running;
       }
-      else if (p5.keyCode === 84) {
+      else if (p5.keyCode === 84) { // t
         this.trails = !this.trails;
       }
-      // console.log(p5.keyCode);
+      else if (p5.keyCode === 86) { // v
+        this.showVehicles = !this.showVehicles;
+      }
+      console.log(p5.keyCode);
     };
   }
 }

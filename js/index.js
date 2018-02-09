@@ -8,7 +8,8 @@ const vehicles = require('./lib/vehicles');
 const fn = () => {
   // new p5(vehicles[0], 'vehicles000');
   // new p5(vehicles[1], 'vehicles001');
-  new p5(vehicles[2], 'vehicles002');
+  // new p5(vehicles[2], 'vehicles002');
+  new p5(vehicles[3], 'vehicles003');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
@@ -57,12 +58,14 @@ class Vehicle {
     this.p = p;
     this.position = new Vector(10, config.WINDOW_HEIGHT / 2);
     this.velocity = new Vector(0, 0);
+    this.steer = () => {};
 
     this.thickness = config.VEHICLE_THICKNESS;
     this.size = config.VEHICLE_SIZE;
   }
 
   step() {
+    this.steer();
     this.position.add(this.velocity);
     this.wrap();
   }
@@ -168,12 +171,15 @@ class World {
 
     p5.keyPressed = () => {
       if (p5.keyCode === 32) { // space
-        this.showVehicles = !this.showVehicles;
+        this.running = !this.running;
       }
-      else if (p5.keyCode === 84) {
+      else if (p5.keyCode === 84) { // t
         this.trails = !this.trails;
       }
-      // console.log(p5.keyCode);
+      else if (p5.keyCode === 86) { // v
+        this.showVehicles = !this.showVehicles;
+      }
+      console.log(p5.keyCode);
     };
   }
 }
@@ -200,9 +206,10 @@ module.exports = [
   require('./vehicles000'),
   require('./vehicles001'),
   require('./vehicles002'),
+  require('./vehicles003'),
 ];
 
-},{"./vehicles000":7,"./vehicles001":8,"./vehicles002":9}],7:[function(require,module,exports){
+},{"./vehicles000":7,"./vehicles001":8,"./vehicles002":9,"./vehicles003":10}],7:[function(require,module,exports){
 'use strict';
 
 const World = require('./World');
@@ -270,6 +277,40 @@ const sketch = function (p5) {
     const r = Math.random;
     vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
     vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
+    world.addVehicle(vehicle);
+  }
+
+  world.start();
+};
+
+module.exports = sketch;
+
+},{"./Vector":2,"./Vehicle":3,"./World":4,"./config":5}],10:[function(require,module,exports){
+'use strict';
+
+const config = require('./config');
+const World = require('./World');
+const Vehicle = require('./Vehicle');
+const Vector = require('./Vector');
+
+const numVehicles = 100;
+
+const sketch = function (p5) {
+
+  const steerfn = function () {
+    this.velocity = new Vector(1, 1);
+  };
+
+  const world = new World();
+  world.addCanvas(p5);
+  world.trails = true;
+
+  for (let i = 0; i < numVehicles; i++) {
+    const vehicle = new Vehicle(p5);
+    const r = Math.random;
+    vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
+    vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
+    vehicle.steer = steerfn;
     world.addVehicle(vehicle);
   }
 

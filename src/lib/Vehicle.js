@@ -8,12 +8,14 @@ class Vehicle {
     this.p = p;
     this.position = new Vector(10, config.WINDOW_HEIGHT / 2);
     this.velocity = new Vector(0, 0);
+    this.steer = () => {};
 
     this.thickness = config.VEHICLE_THICKNESS;
     this.size = config.VEHICLE_SIZE;
   }
 
   step() {
+    this.steer();
     this.position.add(this.velocity);
     this.wrap();
   }
