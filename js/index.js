@@ -31,6 +31,38 @@ class Vector {
   add(vec) {
     this.x += vec.x;
     this.y += vec.y;
+    return this;
+  }
+
+  sub(vec) {
+    this.x -= vec.x;
+    this.y -= vec.y;
+    return this;
+  }
+
+  scale(n) {
+    this.x *= n;
+    this.y *= n;
+    return this;
+  }
+
+  get length() {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
+  set length(len) {
+    const angle = this.angle;
+    this.x = Math.cos(angle) * len;
+    this.y = Math.sin(angle) * len;
+  }
+
+  get angle() {
+    return Math.atan2(this.y, this.x);
+  }
+  set angle(a) {
+    const len = this.length;
+    this.x = Math.cos(a) * len;
+    this.y = Math.sin(a) * len;
   }
 
   // returns the x, y given, rotate by the vector
@@ -59,6 +91,7 @@ class Vehicle {
     this.position = new Vector(10, config.WINDOW_HEIGHT / 2);
     this.velocity = new Vector(0, 0);
     this.steer = () => {};
+    this.brain = {};
 
     this.thickness = config.VEHICLE_THICKNESS;
     this.size = config.VEHICLE_SIZE;
@@ -66,6 +99,15 @@ class Vehicle {
 
   step() {
     this.steer();
+
+    const len = this.velocity.length;
+    if (len < config.VEHICLE_MIN_SPEED) {
+      this.velocity.length = config.VEHICLE_MIN_SPEED;
+    }
+    else if (len > config.VEHICLE_MAX_SPEED) {
+      this.velocity.length = config.VEHICLE_MAX_SPEED;
+    }
+
     this.position.add(this.velocity);
     this.wrap();
   }
@@ -179,7 +221,7 @@ class World {
       else if (p5.keyCode === 86) { // v
         this.showVehicles = !this.showVehicles;
       }
-      console.log(p5.keyCode);
+      // console.log(p5.keyCode);
     };
   }
 }
@@ -192,11 +234,16 @@ module.exports = World;
 module.exports = {
   WINDOW_WIDTH: 640,
   WINDOW_HEIGHT: 480,
-  BACKGROUND_COLOR: '#fff',
+
   VEHICLE_COLOR: 'rgba(0,0,0,1)',
-  TRAILS_COLOR: 'rgba(0,0,0,0.002)',
+  VEHICLE_MIN_SPEED: 0.2,
+  VEHICLE_MAX_SPEED: 10,
+  VEHICLE_MAX_TURN: 20,
+  VEHICLE_SIZE: 6,
   VEHICLE_THICKNESS: 2,
-  VEHICLE_SIZE: 6
+
+  BACKGROUND_COLOR: '#fff',
+  TRAILS_COLOR: 'rgba(0,0,0,0.002)',
 };
 
 },{}],6:[function(require,module,exports){
@@ -293,12 +340,27 @@ const World = require('./World');
 const Vehicle = require('./Vehicle');
 const Vector = require('./Vector');
 
-const numVehicles = 100;
+const numVehicles = 1;
 
 const sketch = function (p5) {
 
   const steerfn = function () {
-    this.velocity = new Vector(1, 1);
+    if (!this.brain.noiseOffset) {
+      this.brain.noiseOffset = Math.random() * 100000;
+      this.brain.t = 0;
+      this.brain.dt = 0.01;
+    }
+
+    const degrees = p5.noise(this.brain.t + this.brain.noiseOffset, 0) - 0.5;
+    // world.trailBuffer.stroke(p5.noise(this.brain.t + this.brain.noiseOffset, 0) * 255);
+    // const linex = (this.brain.t * 100) % p5.width;
+    // world.trailBuffer.line(linex / 2, 20, linex / 2, 40);
+
+    const accel = p5.noise(0, this.brain.t + this.brain.noiseOffset) - 0.5;
+    this.velocity.angle = this.velocity.angle + degrees / 10;
+    this.velocity.length = this.velocity.length + accel / 5;
+
+    this.brain.t += this.brain.dt;
   };
 
   const world = new World();

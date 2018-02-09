@@ -5,12 +5,27 @@ const World = require('./World');
 const Vehicle = require('./Vehicle');
 const Vector = require('./Vector');
 
-const numVehicles = 100;
+const numVehicles = 1;
 
 const sketch = function (p5) {
 
   const steerfn = function () {
-    this.velocity = new Vector(1, 1);
+    if (!this.brain.noiseOffset) {
+      this.brain.noiseOffset = Math.random() * 100000;
+      this.brain.t = 0;
+      this.brain.dt = 0.01;
+    }
+
+    const degrees = p5.noise(this.brain.t + this.brain.noiseOffset, 0) - 0.5;
+    // world.trailBuffer.stroke(p5.noise(this.brain.t + this.brain.noiseOffset, 0) * 255);
+    // const linex = (this.brain.t * 100) % p5.width;
+    // world.trailBuffer.line(linex / 2, 20, linex / 2, 40);
+
+    const accel = p5.noise(0, this.brain.t + this.brain.noiseOffset) - 0.5;
+    this.velocity.angle = this.velocity.angle + degrees / 10;
+    this.velocity.length = this.velocity.length + accel / 5;
+
+    this.brain.t += this.brain.dt;
   };
 
   const world = new World();

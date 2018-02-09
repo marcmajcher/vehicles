@@ -9,6 +9,7 @@ class Vehicle {
     this.position = new Vector(10, config.WINDOW_HEIGHT / 2);
     this.velocity = new Vector(0, 0);
     this.steer = () => {};
+    this.brain = {};
 
     this.thickness = config.VEHICLE_THICKNESS;
     this.size = config.VEHICLE_SIZE;
@@ -16,6 +17,15 @@ class Vehicle {
 
   step() {
     this.steer();
+
+    const len = this.velocity.length;
+    if (len < config.VEHICLE_MIN_SPEED) {
+      this.velocity.length = config.VEHICLE_MIN_SPEED;
+    }
+    else if (len > config.VEHICLE_MAX_SPEED) {
+      this.velocity.length = config.VEHICLE_MAX_SPEED;
+    }
+
     this.position.add(this.velocity);
     this.wrap();
   }

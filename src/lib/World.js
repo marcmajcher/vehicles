@@ -61,7 +61,7 @@ class World {
       else if (p5.keyCode === 86) { // v
         this.showVehicles = !this.showVehicles;
       }
-      console.log(p5.keyCode);
+      // console.log(p5.keyCode);
     };
   }
 }
