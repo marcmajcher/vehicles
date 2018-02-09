@@ -17,8 +17,8 @@ const sketch = function (p5) {
     const degrees = p5.noise(this.brain.t + this.brain.noiseOffset, 0) - 0.5;
     const accel = p5.noise(0, this.brain.t + this.brain.noiseOffset) - 0.5;
 
-    this.velocity.angle = this.velocity.angle + degrees / 10;
-    this.velocity.length = this.velocity.length + accel / 10;
+    this.velocity.angle = this.velocity.angle + degrees / 20;
+    this.velocity.length = this.velocity.length + accel / 30;
 
     this.brain.t += this.brain.dt;
   };
