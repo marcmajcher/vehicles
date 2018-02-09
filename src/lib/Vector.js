@@ -4,6 +4,7 @@ class Vector {
   constructor(x, y) {
     this.x = x;
     this.y = y;
+    // this.maxTurn = 0.3;
   }
 
   clone() {

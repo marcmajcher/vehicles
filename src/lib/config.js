@@ -13,5 +13,5 @@ module.exports = {
   VEHICLE_THICKNESS: 2,
 
   BACKGROUND_COLOR: '#fff',
-  TRAILS_COLOR: 'rgba(0,0,0,0.002)',
+  TRAILS_COLOR: 'rgba(0,0,0,0.01 )',
 };

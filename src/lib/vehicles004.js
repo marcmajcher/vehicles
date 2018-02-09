@@ -12,6 +12,7 @@ const sketch = function (p5) {
       const targetVector = this.position.clone();
       targetVector.sub(this.brain.target);
       targetVector.normalize();
+
       this.velocity.sub(targetVector);
     }
   };
