@@ -5,7 +5,7 @@ const World = require('./World');
 const Vehicle = require('./Vehicle');
 const Vector = require('./Vector');
 
-const numVehicles = 1;
+const numVehicles = 100;
 
 const sketch = function (p5) {
 
@@ -17,13 +17,10 @@ const sketch = function (p5) {
     }
 
     const degrees = p5.noise(this.brain.t + this.brain.noiseOffset, 0) - 0.5;
-    // world.trailBuffer.stroke(p5.noise(this.brain.t + this.brain.noiseOffset, 0) * 255);
-    // const linex = (this.brain.t * 100) % p5.width;
-    // world.trailBuffer.line(linex / 2, 20, linex / 2, 40);
-
     const accel = p5.noise(0, this.brain.t + this.brain.noiseOffset) - 0.5;
+
     this.velocity.angle = this.velocity.angle + degrees / 10;
-    this.velocity.length = this.velocity.length + accel / 5;
+    this.velocity.length = this.velocity.length + accel / 10;
 
     this.brain.t += this.brain.dt;
   };

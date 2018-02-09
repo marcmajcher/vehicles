@@ -166,6 +166,7 @@ class World {
   constructor() {
     this.running = false;
     this.showVehicles = true;
+    this.toggle = false;
     this.trails = false;
     this.vehicles = [];
   }
@@ -191,7 +192,7 @@ class World {
     };
 
     p5.draw = () => {
-      if (this.running) {
+      if (this.running || this.toggle) {
         p5.background(config.BACKGROUND_COLOR);
         if (this.trails) {
           p5.image(this.trailBuffer, 0, 0, p5.width, p5.height);
@@ -199,11 +200,15 @@ class World {
 
         // move all vehicles, then draw them
         // NB: vehicles move in order, not simultaneously
+        if (!this.toggle) {
+          this.vehicles.forEach((vehicle) => {
+            vehicle.step();
+          });
+        }
         this.vehicles.forEach((vehicle) => {
-          vehicle.step();
-        });
-        this.vehicles.forEach((vehicle) => {
-          vehicle.drawTrail(this.trailBuffer);
+          if (!this.toggle) {
+            vehicle.drawTrail(this.trailBuffer);
+          }
           if (this.showVehicles) {
             vehicle.draw();
           }
@@ -211,17 +216,35 @@ class World {
       }
     };
 
-    p5.keyPressed = () => {
-      if (p5.keyCode === 32) { // space
+    const keyActions = {
+      32: () => { // space - pause/resume
         this.running = !this.running;
-      }
-      else if (p5.keyCode === 84) { // t
+      },
+      83: () => { // s - do one step
+        if (!this.running) {
+          this.running = true;
+          p5.redraw();
+          this.running = false;
+        }
+      },
+      84: () => { // t - toggle trail view
+        this.toggle = true;
         this.trails = !this.trails;
-      }
-      else if (p5.keyCode === 86) { // v
+        p5.redraw();
+        this.toggle = false;
+      },
+      86: () => { //v - toggle vehicle view
+        this.toggle = true;
         this.showVehicles = !this.showVehicles;
+        p5.redraw();
+        this.toggle = false;
       }
-      // console.log(p5.keyCode);
+    };
+
+    p5.keyPressed = () => {
+      if (p5.keyCode in keyActions) {
+        keyActions[p5.keyCode]();
+      }
     };
   }
 }
@@ -236,9 +259,9 @@ module.exports = {
   WINDOW_HEIGHT: 480,
 
   VEHICLE_COLOR: 'rgba(0,0,0,1)',
-  VEHICLE_MIN_SPEED: 0.2,
-  VEHICLE_MAX_SPEED: 10,
-  VEHICLE_MAX_TURN: 20,
+  VEHICLE_MIN_SPEED: 0.5,
+  VEHICLE_MAX_SPEED: 6,
+  VEHICLE_MAX_TURN: 10,
   VEHICLE_SIZE: 6,
   VEHICLE_THICKNESS: 2,
 
@@ -340,7 +363,7 @@ const World = require('./World');
 const Vehicle = require('./Vehicle');
 const Vector = require('./Vector');
 
-const numVehicles = 1;
+const numVehicles = 100;
 
 const sketch = function (p5) {
 
@@ -352,13 +375,10 @@ const sketch = function (p5) {
     }
 
     const degrees = p5.noise(this.brain.t + this.brain.noiseOffset, 0) - 0.5;
-    // world.trailBuffer.stroke(p5.noise(this.brain.t + this.brain.noiseOffset, 0) * 255);
-    // const linex = (this.brain.t * 100) % p5.width;
-    // world.trailBuffer.line(linex / 2, 20, linex / 2, 40);
-
     const accel = p5.noise(0, this.brain.t + this.brain.noiseOffset) - 0.5;
+
     this.velocity.angle = this.velocity.angle + degrees / 10;
-    this.velocity.length = this.velocity.length + accel / 5;
+    this.velocity.length = this.velocity.length + accel / 10;
 
     this.brain.t += this.brain.dt;
   };
