@@ -5,11 +5,9 @@ const World = require('./World');
 const Vehicle = require('./Vehicle');
 const Vector = require('./Vector');
 
-const numVehicles = 100;
-
 const sketch = function (p5) {
 
-  const steerfn = function () {
+  const steering = function () {
     if (!this.brain.noiseOffset) {
       this.brain.noiseOffset = Math.random() * 100000;
       this.brain.t = 0;
@@ -25,19 +23,20 @@ const sketch = function (p5) {
     this.brain.t += this.brain.dt;
   };
 
+  const init = function () {
+    for (let i = 0; i < this.numVehicles; i++) {
+      const vehicle = new Vehicle(p5);
+      const r = Math.random;
+      vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
+      vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
+      vehicle.steer = steering;
+      this.addVehicle(vehicle);
+    }
+  };
+
   const world = new World();
   world.addCanvas(p5);
-  world.trails = true;
-
-  for (let i = 0; i < numVehicles; i++) {
-    const vehicle = new Vehicle(p5);
-    const r = Math.random;
-    vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
-    vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
-    vehicle.steer = steerfn;
-    world.addVehicle(vehicle);
-  }
-
+  world.init = init;
   world.start();
 };
 

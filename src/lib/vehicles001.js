@@ -10,6 +10,7 @@ const numVehicles = 100;
 const sketch = function (p5) {
   const world = new World();
   world.addCanvas(p5);
+  world.trails = false;
 
   for (let i = 0; i < numVehicles; i++) {
     const vehicle = new Vehicle(p5);

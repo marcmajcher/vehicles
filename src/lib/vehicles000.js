@@ -7,6 +7,7 @@ const Vector = require('./Vector');
 const sketch = function (p5) {
   const world = new World();
   world.addCanvas(p5);
+  world.trails = false;
 
   const vehicle = new Vehicle(p5);
   vehicle.velocity = new Vector(1, 0);

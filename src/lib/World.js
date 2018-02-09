@@ -4,19 +4,27 @@ const config = require('./config');
 
 class World {
   constructor() {
+    this.init = () => {};
+    this.numVehicles = config.NUM_VEHICLES;
     this.running = false;
     this.showVehicles = true;
     this.toggle = false;
-    this.trails = false;
+    this.trails = true;
     this.vehicles = [];
   }
 
   start() {
+    this.vehicles = [];
+    this.init();
     this.running = true;
   }
 
-  stop() {
+  pause() {
     this.running = false;
+  }
+
+  play() {
+    this.running = true;
   }
 
   addVehicle(vehicle) {
@@ -24,8 +32,6 @@ class World {
   }
 
   addCanvas(p5) {
-    this.p5 = p5;
-
     p5.setup = () => {
       p5.createCanvas(config.WINDOW_WIDTH, config.WINDOW_HEIGHT);
       this.trailBuffer = p5.createGraphics(p5.width, p5.height);
@@ -59,6 +65,10 @@ class World {
     const keyActions = {
       32: () => { // space - pause/resume
         this.running = !this.running;
+      },
+      82: () => { // r - restart
+        this.trailBuffer = p5.createGraphics(p5.width, p5.height); // can't do p5 stuff out there
+        this.start();
       },
       83: () => { // s - do one step
         if (!this.running) {
