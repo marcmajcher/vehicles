@@ -8,10 +8,12 @@ const Vector = require('./Vector');
 const sketch = function (p5) {
 
   const steering = function () {
-    let degrees = 0;
-    let accel = 0;
-    this.velocity.angle = this.velocity.angle + degrees / 20;
-    this.velocity.length = this.velocity.length + accel / 30;
+    if (this.brain.target) {
+      const targetVector = this.position.clone();
+      targetVector.sub(this.brain.target);
+      targetVector.normalize();
+      this.velocity.sub(targetVector);
+    }
   };
 
   const init = function () {

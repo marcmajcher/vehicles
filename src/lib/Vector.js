@@ -6,6 +6,10 @@ class Vector {
     this.y = y;
   }
 
+  clone() {
+    return new Vector(this.x, this.y);
+  }
+
   add(vec) {
     this.x += vec.x;
     this.y += vec.y;
@@ -41,6 +45,19 @@ class Vector {
     const len = this.length;
     this.x = Math.cos(a) * len;
     this.y = Math.sin(a) * len;
+  }
+
+  normalize() {
+    if (this.length === 0) {
+      this.x = 1;
+      this.y = 0;
+    }
+    else {
+      const len = this.length;
+      this.x /= len;
+      this.y /= len;
+    }
+    return this;
   }
 
   // returns the x, y given, rotate by the vector

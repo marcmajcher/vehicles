@@ -29,6 +29,10 @@ class Vector {
     this.y = y;
   }
 
+  clone() {
+    return new Vector(this.x, this.y);
+  }
+
   add(vec) {
     this.x += vec.x;
     this.y += vec.y;
@@ -64,6 +68,19 @@ class Vector {
     const len = this.length;
     this.x = Math.cos(a) * len;
     this.y = Math.sin(a) * len;
+  }
+
+  normalize() {
+    if (this.length === 0) {
+      this.x = 1;
+      this.y = 0;
+    }
+    else {
+      const len = this.length;
+      this.x /= len;
+      this.y /= len;
+    }
+    return this;
   }
 
   // returns the x, y given, rotate by the vector
@@ -426,10 +443,12 @@ const Vector = require('./Vector');
 const sketch = function (p5) {
 
   const steering = function () {
-    let degrees = 0;
-    let accel = 0;
-    this.velocity.angle = this.velocity.angle + degrees / 20;
-    this.velocity.length = this.velocity.length + accel / 30;
+    if (this.brain.target) {
+      const targetVector = this.position.clone();
+      targetVector.sub(this.brain.target);
+      targetVector.normalize();
+      this.velocity.sub(targetVector);
+    }
   };
 
   const init = function () {
