@@ -14,7 +14,8 @@ const fn = () => {
   // new p5(vehicles[5], 'vehicles005');
   // new p5(vehicles[6], 'vehicles006');
   // new p5(vehicles[7], 'vehicles007');
-  new p5(vehicles[8], 'vehicles008');
+  // new p5(vehicles[8], 'vehicles008');
+  new p5(vehicles[9], 'vehicles009');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
@@ -31,7 +32,6 @@ class Vector {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    // this.maxTurn = 0.3;
   }
 
   clone() {
@@ -66,7 +66,7 @@ class Vector {
     this.y = Math.sin(angle) * len;
   }
 
-  get angle() {
+  get angle() { // in radians
     return Math.atan2(this.y, this.x);
   }
   set angle(a) {
@@ -124,7 +124,13 @@ class Vehicle {
   }
 
   step() {
+    const initialAngle = this.velocity.angle;
     this.steer();
+    if (Math.abs(this.velocity.angle - initialAngle) > config.VEHICLE_MAX_TURN) {
+      const negative = ((this.velocity.angle + Math.PI * 2) - (initialAngle + Math.PI * 2)) < 0;
+      const newAngle = initialAngle + config.VEHICLE_MAX_TURN * (negative ? -1 : 1);
+      this.velocity.angle = newAngle;
+    }
 
     const len = this.velocity.length;
     if (len < config.VEHICLE_MIN_SPEED) {
@@ -207,7 +213,7 @@ const config = require('./config');
 class World {
   constructor() {
     this.init = () => {};
-    this.collide = true;
+    this.collide = false;
     this.numVehicles = config.NUM_VEHICLES;
     this.running = false;
     this.showVehicles = true;
@@ -326,9 +332,10 @@ module.exports = {
   VEHICLE_COLOR: 'rgba(0,0,0,1)',
   VEHICLE_MIN_SPEED: 0.5,
   VEHICLE_MAX_SPEED: 3,
-  VEHICLE_MAX_TURN: 10,
+  VEHICLE_MAX_TURN: 0.1, // radians
   VEHICLE_SIZE: 6,
   VEHICLE_THICKNESS: 2,
+  MAX_BOREDOM: 1000,
 
   BACKGROUND_COLOR: '#fff',
   TRAILS_COLOR: 'rgba(0,0,0,0.01 )',
@@ -347,9 +354,10 @@ module.exports = [
   require('./vehicles006'),
   require('./vehicles007'),
   require('./vehicles008'),
+  require('./vehicles009'),
 ];
 
-},{"./vehicles000":7,"./vehicles001":8,"./vehicles002":9,"./vehicles003":10,"./vehicles004":11,"./vehicles005":12,"./vehicles006":13,"./vehicles007":14,"./vehicles008":15}],7:[function(require,module,exports){
+},{"./vehicles000":7,"./vehicles001":8,"./vehicles002":9,"./vehicles003":10,"./vehicles004":11,"./vehicles005":12,"./vehicles006":13,"./vehicles007":14,"./vehicles008":15,"./vehicles009":16}],7:[function(require,module,exports){
 'use strict';
 
 const World = require('./World');
@@ -750,6 +758,87 @@ const sketch = function (p5) {
         vehicle.brain.target = this.vehicles[Math.floor(Math.random() * this.vehicles.length)];
       }
       vehicle.steer = steering;
+
+      this.addVehicle(vehicle);
+    }
+  };
+
+  const world = new World();
+  world.addCanvas(p5);
+  world.init = init;
+  world.start();
+};
+
+module.exports = sketch;
+
+},{"./Vector":2,"./Vehicle":3,"./World":4,"./config":5}],16:[function(require,module,exports){
+'use strict';
+
+// FOLLOW/conga
+
+const config = require('./config');
+const World = require('./World');
+const Vehicle = require('./Vehicle');
+const Vector = require('./Vector');
+
+const sketch = function (p5) {
+
+  const perlinSteer = function (factor = 1) {
+    if (!this.brain.noiseOffset) {
+      this.brain.noiseOffset = Math.random() * 100000;
+      this.brain.t = 0;
+      this.brain.dt = 0.01;
+    }
+
+    const degrees = p5.noise(this.brain.t + this.brain.noiseOffset, 0) - 0.5;
+    const accel = p5.noise(0, this.brain.t + this.brain.noiseOffset) - 0.5;
+
+    this.velocity.angle = this.velocity.angle + (degrees / 20) * factor;
+    this.velocity.length = this.velocity.length + (accel / 30) * factor;
+
+    this.brain.t += this.brain.dt;
+  };
+
+  const updateBoredom = function () {
+    if (this.brain.bored) {
+      this.brain.boredom--;
+      if (this.brain.boredom <= 0) {
+        this.brain.bored = false;
+        this.color = 'rgb(51,0,0)';
+      }
+    }
+    else {
+      this.brain.boredom++;
+      if (Math.random() * config.MAX_BOREDOM < this.brain.boredom) {
+        this.brain.bored = true;
+        this.color = config.VEHICLE_COLOR;
+      }
+    }
+  };
+
+  const followTarget = function () {
+    if (this.brain.target) {
+      updateBoredom.call(this);
+      if (!this.brain.bored) {
+        const targetVector = this.brain.target.position.clone();
+        targetVector.sub(this.position);
+        targetVector.normalize();
+        this.velocity.add(targetVector);
+      }
+    }
+    perlinSteer.call(this, 2);
+  };
+
+  const init = function () {
+
+    for (let i = 0; i < this.numVehicles; i++) {
+      const vehicle = new Vehicle(p5);
+      const r = Math.random;
+      vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
+      vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
+      vehicle.brain.target = this.vehicles[Math.floor(Math.random() * this.vehicles.length)];
+      vehicle.brain.boredom = 0; //Math.floor(Math.random() * config.MAX_BOREDOM);
+      vehicle.steer = followTarget;
 
       this.addVehicle(vehicle);
     }

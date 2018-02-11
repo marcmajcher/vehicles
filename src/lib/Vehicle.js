@@ -19,7 +19,13 @@ class Vehicle {
   }
 
   step() {
+    const initialAngle = this.velocity.angle;
     this.steer();
+    if (Math.abs(this.velocity.angle - initialAngle) > config.VEHICLE_MAX_TURN) {
+      const negative = ((this.velocity.angle + Math.PI * 2) - (initialAngle + Math.PI * 2)) < 0;
+      const newAngle = initialAngle + config.VEHICLE_MAX_TURN * (negative ? -1 : 1);
+      this.velocity.angle = newAngle;
+    }
 
     const len = this.velocity.length;
     if (len < config.VEHICLE_MIN_SPEED) {

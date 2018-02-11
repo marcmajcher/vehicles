@@ -5,7 +5,7 @@ const config = require('./config');
 class World {
   constructor() {
     this.init = () => {};
-    this.collide = true;
+    this.collide = false;
     this.numVehicles = config.NUM_VEHICLES;
     this.running = false;
     this.showVehicles = true;

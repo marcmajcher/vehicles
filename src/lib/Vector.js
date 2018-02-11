@@ -4,7 +4,6 @@ class Vector {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    // this.maxTurn = 0.3;
   }
 
   clone() {
@@ -39,7 +38,7 @@ class Vector {
     this.y = Math.sin(angle) * len;
   }
 
-  get angle() {
+  get angle() { // in radians
     return Math.atan2(this.y, this.x);
   }
   set angle(a) {
