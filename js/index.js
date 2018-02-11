@@ -330,12 +330,12 @@ module.exports = {
 
   NUM_VEHICLES: 100,
   VEHICLE_COLOR: 'rgba(0,0,0,1)',
-  VEHICLE_MIN_SPEED: 0.5,
+  VEHICLE_MIN_SPEED: 1,
   VEHICLE_MAX_SPEED: 3,
   VEHICLE_MAX_TURN: 0.1, // radians
   VEHICLE_SIZE: 6,
   VEHICLE_THICKNESS: 2,
-  MAX_BOREDOM: 1000,
+  MAX_BOREDOM: 5000,
 
   BACKGROUND_COLOR: '#fff',
   TRAILS_COLOR: 'rgba(0,0,0,0.01 )',
@@ -801,17 +801,19 @@ const sketch = function (p5) {
 
   const updateBoredom = function () {
     if (this.brain.bored) {
+      this.color = config.VEHICLE_COLOR;
       this.brain.boredom--;
       if (this.brain.boredom <= 0) {
         this.brain.bored = false;
-        this.color = 'rgb(51,0,0)';
       }
     }
     else {
-      this.brain.boredom++;
-      if (Math.random() * config.MAX_BOREDOM < this.brain.boredom) {
+      this.color = 'rgb(51,0,0)';
+      if (Math.random() < 0.5) {
+        this.brain.boredom++;
+      }
+      if (this.brain.boredom >= config.MAX_BOREDOM) {
         this.brain.bored = true;
-        this.color = config.VEHICLE_COLOR;
       }
     }
   };
@@ -837,7 +839,7 @@ const sketch = function (p5) {
       vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
       vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
       vehicle.brain.target = this.vehicles[Math.floor(Math.random() * this.vehicles.length)];
-      vehicle.brain.boredom = 0; //Math.floor(Math.random() * config.MAX_BOREDOM);
+      vehicle.brain.boredom = Math.floor(Math.random() * config.MAX_BOREDOM);
       vehicle.steer = followTarget;
 
       this.addVehicle(vehicle);
