@@ -5,6 +5,7 @@ const config = require('./config');
 class World {
   constructor() {
     this.init = () => {};
+    this.collide = true;
     this.numVehicles = config.NUM_VEHICLES;
     this.running = false;
     this.showVehicles = true;
@@ -31,6 +32,28 @@ class World {
     this.vehicles.push(vehicle);
   }
 
+  step() {
+    // move all vehicles, then draw them
+    // NB: vehicles move in order, not simultaneously
+    if (!this.toggle) {
+      for (let i = 0; i < this.vehicles.length; i++) {
+        this.vehicles[i].step();
+        for (let j = i + 1; this.collide && j < this.vehicles.length; j++) {
+          this.vehicles[i].collide(this.vehicles[j]);
+        }
+      }
+
+    }
+    this.vehicles.forEach((vehicle) => {
+      if (!this.toggle) {
+        vehicle.drawTrail(this.trailBuffer);
+      }
+      if (this.showVehicles) {
+        vehicle.draw();
+      }
+    });
+  }
+
   addCanvas(p5) {
     p5.setup = () => {
       p5.createCanvas(config.WINDOW_WIDTH, config.WINDOW_HEIGHT);
@@ -44,27 +67,16 @@ class World {
           p5.image(this.trailBuffer, 0, 0, p5.width, p5.height);
         }
 
-        // move all vehicles, then draw them
-        // NB: vehicles move in order, not simultaneously
-        if (!this.toggle) {
-          this.vehicles.forEach((vehicle) => {
-            vehicle.step();
-          });
-        }
-        this.vehicles.forEach((vehicle) => {
-          if (!this.toggle) {
-            vehicle.drawTrail(this.trailBuffer);
-          }
-          if (this.showVehicles) {
-            vehicle.draw();
-          }
-        });
+        this.step();
       }
     };
 
     const keyActions = {
       32: () => { // space - pause/resume
         this.running = !this.running;
+      },
+      67: () => { // c - collide
+        this.collide = !this.collide;
       },
       82: () => { // r - restart
         this.trailBuffer = p5.createGraphics(p5.width, p5.height); // can't do p5 stuff out there
