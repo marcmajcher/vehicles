@@ -40,6 +40,7 @@ class Vehicle {
   }
 
   collide(vehicle) {
+    // TBD: teleports sometimes, when too close?
     const COLL_OFF = 1.1;
     const p1 = this.position;
     const p2 = vehicle.position;

@@ -1,5 +1,7 @@
 'use strict';
 
+const config = require('./config');
+
 class Vector {
   constructor(x, y) {
     this.x = x;
@@ -20,6 +22,33 @@ class Vector {
     this.x -= vec.x;
     this.y -= vec.y;
     return this;
+  }
+
+  worldSub(vec) {
+    // this.x -= vec.x;
+    // this.y -= vec.y;
+    // return this;
+
+    let xdiff = this.x - vec.x;
+    if (xdiff > (config.WINDOW_WIDTH / 2)) {
+      xdiff -= config.WINDOW_WIDTH;
+    }
+    else if (xdiff < (config.WINDOW_WIDTH / -2)) {
+      xdiff += config.WINDOW_WIDTH;
+    }
+    this.x = xdiff;
+
+    let ydiff = this.y - vec.y;
+    if (ydiff > (config.WINDOW_HEIGHT / 2)) {
+      ydiff -= config.WINDOW_HEIGHT;
+    }
+    else if (ydiff < (config.WINDOW_HEIGHT / -2)) {
+      ydiff += config.WINDOW_HEIGHT;
+    }
+    this.y = ydiff;
+
+    return this;
+
   }
 
   scale(n) {

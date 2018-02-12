@@ -15,7 +15,8 @@ const fn = () => {
   // new p5(vehicles[6], 'vehicles006');
   // new p5(vehicles[7], 'vehicles007');
   // new p5(vehicles[8], 'vehicles008');
-  new p5(vehicles[9], 'vehicles009');
+  // new p5(vehicles[9], 'vehicles009');
+  new p5(vehicles[10], 'vehicles0010');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
@@ -27,6 +28,8 @@ else {
 
 },{"./lib/vehicles":6}],2:[function(require,module,exports){
 'use strict';
+
+const config = require('./config');
 
 class Vector {
   constructor(x, y) {
@@ -48,6 +51,33 @@ class Vector {
     this.x -= vec.x;
     this.y -= vec.y;
     return this;
+  }
+
+  worldSub(vec) {
+    // this.x -= vec.x;
+    // this.y -= vec.y;
+    // return this;
+
+    let xdiff = this.x - vec.x;
+    if (xdiff > (config.WINDOW_WIDTH / 2)) {
+      xdiff -= config.WINDOW_WIDTH;
+    }
+    else if (xdiff < (config.WINDOW_WIDTH / -2)) {
+      xdiff += config.WINDOW_WIDTH;
+    }
+    this.x = xdiff;
+
+    let ydiff = this.y - vec.y;
+    if (ydiff > (config.WINDOW_HEIGHT / 2)) {
+      ydiff -= config.WINDOW_HEIGHT;
+    }
+    else if (ydiff < (config.WINDOW_HEIGHT / -2)) {
+      ydiff += config.WINDOW_HEIGHT;
+    }
+    this.y = ydiff;
+
+    return this;
+
   }
 
   scale(n) {
@@ -102,7 +132,7 @@ class Vector {
 
 module.exports = Vector;
 
-},{}],3:[function(require,module,exports){
+},{"./config":5}],3:[function(require,module,exports){
 'use strict';
 
 const config = require('./config');
@@ -145,6 +175,7 @@ class Vehicle {
   }
 
   collide(vehicle) {
+    // TBD: teleports sometimes, when too close?
     const COLL_OFF = 1.1;
     const p1 = this.position;
     const p2 = vehicle.position;
@@ -355,9 +386,10 @@ module.exports = [
   require('./vehicles007'),
   require('./vehicles008'),
   require('./vehicles009'),
+  require('./vehicles010'),
 ];
 
-},{"./vehicles000":7,"./vehicles001":8,"./vehicles002":9,"./vehicles003":10,"./vehicles004":11,"./vehicles005":12,"./vehicles006":13,"./vehicles007":14,"./vehicles008":15,"./vehicles009":16}],7:[function(require,module,exports){
+},{"./vehicles000":7,"./vehicles001":8,"./vehicles002":9,"./vehicles003":10,"./vehicles004":11,"./vehicles005":12,"./vehicles006":13,"./vehicles007":14,"./vehicles008":15,"./vehicles009":16,"./vehicles010":17}],7:[function(require,module,exports){
 'use strict';
 
 const World = require('./World');
@@ -842,6 +874,71 @@ const sketch = function (p5) {
       vehicle.brain.boredom = Math.floor(Math.random() * config.MAX_BOREDOM);
       vehicle.steer = followTarget;
 
+      this.addVehicle(vehicle);
+    }
+  };
+
+  const world = new World();
+  world.addCanvas(p5);
+  world.init = init;
+  world.start();
+};
+
+module.exports = sketch;
+
+},{"./Vector":2,"./Vehicle":3,"./World":4,"./config":5}],17:[function(require,module,exports){
+'use strict';
+
+// FOLLOW/conga
+
+const config = require('./config');
+const World = require('./World');
+const Vehicle = require('./Vehicle');
+const Vector = require('./Vector');
+
+const sketch = function (p5) {
+
+  const perlinSteer = function (factor = 1) {
+    if (!this.brain.noiseOffset) {
+      this.brain.noiseOffset = Math.random() * 100000;
+      this.brain.t = 0;
+      this.brain.dt = 0.01;
+    }
+
+    const degrees = p5.noise(this.brain.t + this.brain.noiseOffset, 0) - 0.5;
+    const accel = p5.noise(0, this.brain.t + this.brain.noiseOffset) - 0.5;
+
+    this.velocity.angle = this.velocity.angle + (degrees / 20) * factor;
+    this.velocity.length = this.velocity.length + (accel / 30) * factor;
+
+    this.brain.t += this.brain.dt;
+  };
+
+  const fleeTarget = function () {
+    if (this.brain.target) {
+      if (!this.brain.bored) {
+        let targetVector = this.brain.target.position.clone();
+        targetVector.worldSub(this.position);
+        targetVector.normalize();
+        this.velocity.add(targetVector.scale(-1));
+      }
+    }
+    perlinSteer.call(this, 2);
+  };
+
+  const init = function () {
+    for (let i = 0; i < this.numVehicles; i++) {
+      const vehicle = new Vehicle(p5);
+      const r = Math.random;
+      vehicle.velocity = new Vector(r() * 2 - 1, r() * 2 - 1);
+      vehicle.position = new Vector(r() * config.WINDOW_WIDTH, r() * config.WINDOW_HEIGHT);
+      if (i > 0) {
+        vehicle.brain.target = this.vehicles[i - 1];
+        vehicle.steer = fleeTarget;
+      }
+      else {
+        vehicle.steer = perlinSteer;
+      }
       this.addVehicle(vehicle);
     }
   };
