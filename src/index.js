@@ -15,7 +15,8 @@ const fn = () => {
   // new p5(vehicles[7], 'vehicles007');
   // new p5(vehicles[8], 'vehicles008');
   // new p5(vehicles[9], 'vehicles009');
-  new p5(vehicles[10], 'vehicles0010');
+  // new p5(vehicles[10], 'vehicles0010');
+  new p5(vehicles[11], 'vehicles0011');
 };
 
 if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
