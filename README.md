@@ -2,6 +2,8 @@
 
 Here's the deal. I've got a set of vehicles simulations in actionscript, and I'm going to move them over to p5/javascript, and write up the stuff I started writing about them before. And then keep going.
 
+(VOICEOVER: He didn't keep going.)
+
 The vehicles are based on/inspired by [Braitenberg vehicles](https://en.wikipedia.org/wiki/Braitenberg_vehicle), but diverge significantly pretty quickly, as I add my own takes on stuff.
 
 By necessity, I'm going to talk a little bit about implementation, with vectors and whatnot, up top, but hopefully won't mess the explanations up with too much technical garbage too quickly.
